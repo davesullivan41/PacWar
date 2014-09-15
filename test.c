@@ -13,75 +13,56 @@ struct Battle {
 	char *b;
 	// int victor;
 	int score;
-
 };
-
-// Take two gene strings and run a tournament
-struct Battle duel(char *a, char *b);
-
-// Print the results of the tournament
-void printBattle(struct Battle battle);
-
-// set c to the gene of the winning mite
-void getWinner(char * winner,struct Battle battle);
 
 // returns winner of tournament of random 8 genes
 void runTournament();
 
-int main(){
-	uint32_t switchLocation = mt_goodseed();
-	printf("Random number: %d\n",switchLocation);
-	int firstDigit = switchLocation % 50;
-	printf("First digit: %d\n",firstDigit);
-	switchLocation = switchLocation - firstDigit;
-	int secondDigit = switchLocation % (50^2);
-	printf("Second digit: %d\n",secondDigit);
-	switchLocation = switchLocation - secondDigit*50;
-	int thirdDigit = switchLocation % (50^3);
-	printf("Third digit: %d\n",thirdDigit);
-	switchLocation = switchLocation - thirdDigit*50^2;
-	// int fourthDigit = switchLocation % (20^4);
-	// printf("Fourth digit: %d\n",fourthDigit);
-	// switchLocation = switchLocation - fourthDigit*20^3;
-	// int fifthDigit = switchLocation % (20^5);
-	// printf("Fifth Digit: %d\n",fifthDigit);
-	// switchLocation = switchLocation - fifthDigit*20^4;
-	// int sixthDigit = switchLocation % (20^6);
-	// printf("Sixth Digit: %d\n",sixthDigit);
-	return 0;
+// returns a Battle between a and b
+struct Battle duel(char *a, char *b);
 
+// fill digits with 7 random numbers (0,49) inclusive
+void randomDigits(int * digits);
+
+// set winner to the gene of the winning mite of battle and mutate 
+// according to randomDigit
+void getWinner(char * winner,struct Battle battle,int randomDigit);
+
+// print the results of a battle
+void printBattle(struct Battle battle);
+
+int main(){
 	int score = 0;
 	char winner[50];
 	char *threes;
 	threes = "33333333333333333333333333333333333333333333333333";
 	struct Battle battle;
 	int i = 0;
-	printf("Before loop\n");
+	// printf("Before loop\n");
 	while(i < 1)
 	{
-		runTournament(winner);
-		printf("After tournament\n");
- 		battle = duel(winner,threes);
+		runTournament(winner,1);
+		// printf("After tournament\n");
+ 		// battle = duel(winner,threes);
  		if(battle.score > 10)
  		{
  			break;
  		}
  		i++;
 	}
-	char winner2[50];
-	printf("After final duel\n");
-	getWinner(winner2,battle);
+	// char winner2[50];
+	// printf("After final duel\n");
+	// getWinner(winner2,battle);
 
-	printf("Winning gene: %s\n",winner2);
+	// printf("Winning gene: %s\n",winner2);
 
-	printBattle(battle);
+	// printBattle(battle);
 
-	return 0;
-	
+	return 0;	
 }
-
-void runTournament(char * winner){
-	// generate random genes
+// sets winner to the winning gene of tournament of random 8 genes
+void runTournament(char * winner,int print){
+	// generate random genes - python
 	system("python randomGene.py");
 	// read genes from file gene.txt
 	char a[50];
@@ -110,42 +91,54 @@ void runTournament(char * winner){
 	fscanf(fptr,"%s",h);
 
 	fclose(fptr);
-	printf("File read and closed\n");
+	// printf("File read and closed\n");
+	int digits[7];
+	randomDigits(digits);
+
 
 	// make them duel
 	struct Battle battle1 = duel(a,b);
 	struct Battle battle2 = duel(c,d);
 	struct Battle battle3 = duel(e,f);
 	struct Battle battle4 = duel(g,h);
+	// printBattle(battle1);
+	// printBattle(battle2);
+	// printBattle(battle3);
+	// printBattle(battle4);
 
-	printf("Battle 1 fought\n");
+	// printf("Battle 1 fought\n");
 	char winner1[50];
-	getWinner(winner1,battle1);
+	getWinner(winner1,battle1,digits[0]);
 
 	char winner2[50];
-	getWinner(winner2,battle2);
+	getWinner(winner2,battle2,digits[1]);
 
 	char winner3[50];
-	getWinner(winner3,battle3);
+	getWinner(winner3,battle3,digits[2]);
 
 	char winner4[50];
-	getWinner(winner4,battle4);
-	printf("Winners found\n");
+	getWinner(winner4,battle4,digits[3]);
+	// printf("Winners found\n");
 
 	struct Battle playoff1 = duel(winner1,winner2);
 	struct Battle playoff2 = duel(winner3,winner4);
+	// printBattle(playoff1);
+	// printBattle(playoff2);
 
 	char finalist1[50];
-	getWinner(finalist1,playoff1);
+	getWinner(finalist1,playoff1,digits[4]);
 
 	char finalist2[50];
-	getWinner(finalist2,playoff2);
+	getWinner(finalist2,playoff2,digits[5]);
 
 	struct Battle finalBattle = duel(finalist1,finalist2);
-	printf("Final battle fought\n");
-	getWinner(winner,finalBattle);
+	if(print)
+		printBattle(finalBattle);
+	// printf("Final battle fought\n");
+	getWinner(winner,finalBattle,digits[6]);
 }
 
+// returns a Battle between a and b
 struct Battle duel(char *a, char *b){
 	struct Battle battle;
 	battle.rounds = 500;
@@ -204,16 +197,48 @@ struct Battle duel(char *a, char *b){
 	return battle;
 }
 
-// get winning gene -- mutates the genes of the two mites accoring
-// to the score of the duel.
-// TODO: convert to 6 numbers 1-20 to reduce number of times i need to grab
-// a random number
-void getWinner(char * winner, struct Battle battle){
-	printf("Before random number\n");
+// fill digits with 7 random numbers (0,49) inclusive
+void randomDigits(int * digits){
+	// digits = int[6];
 	uint32_t switchLocation = mt_goodseed();
-	printf("After random number: %d\n",switchLocation);
+	// printf("Random number: %d\n",switchLocation);
+	digits[0] = switchLocation % 50;
+	// printf("First digit: %d\n",firstDigit);
+	switchLocation = switchLocation - digits[0];
+	digits[1] = (switchLocation % (50^2)) % 50;
+	// printf("Second digit: %d\n",secondDigit);
+	switchLocation = switchLocation - digits[1]*50;
+	digits[2] = (switchLocation % (50^3)) % 50;
+
+	switchLocation = mt_goodseed();
+	digits[3] = switchLocation % 50;
+	// printf("First digit: %d\n",firstDigit);
+	switchLocation = switchLocation - digits[3];
+	digits[4] = (switchLocation % (50^2)) % 50;
+	// printf("Second digit: %d\n",secondDigit);
+	switchLocation = switchLocation - digits[4]*50;
+	digits[5] = (switchLocation % (50^3)) % 50;
+	// printf("Second digit: %d\n",secondDigit);
+	switchLocation = switchLocation - digits[5]*50^2;
+	digits[6] = (switchLocation % (50^4)) % 50;
+	printf("Digit: %d\n",digits[0]);
+	printf("Digit: %d\n",digits[1]);
+	printf("Digit: %d\n",digits[2]);
+	printf("Digit: %d\n",digits[3]);
+	printf("Digit: %d\n",digits[4]);
+	printf("Digit: %d\n",digits[5]);
+	printf("Digit: %d\n",digits[6]);
+}
+
+// set winner to the gene of the winning mite of battle and mutate 
+// according to randomDigit
+void getWinner(char * winner, struct Battle battle,int randomDigit){
+	// printf("Before random number\n");
+	// uint32_t switchLocation = mt_goodseed();
+	// printf("After random number: %d\n",switchLocation);
 	// start indexing at a random location
-	int index = switchLocation % 20;
+	// int index = switchLocation % 20;
+	int index = randomDigit;
 	// get the gene from a
 	strcpy(winner,battle.a);
 	// counter of number of genes to switch

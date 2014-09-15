@@ -7,7 +7,7 @@ def randomGene():
 	genome = ''.join(genome)
 	return genome
 
-print "Generating new genes now"
+# print "Generating new genes now"
 threes = ['3']*50
 threes = ''.join(threes)
 ones = ['1']*50
@@ -21,4 +21,4 @@ for i in range(0,7):
 f.write(threes)
 
 f.close()
-print "Finished generating genes"
+# print "Finished generating genes"
