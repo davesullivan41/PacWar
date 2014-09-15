@@ -11,7 +11,7 @@ struct Battle {
 	int count2;
 	char *a;
 	char *b;
-	int victor;
+	// int victor;
 	int score;
 
 };
@@ -29,7 +29,26 @@ void getWinner(char * winner,struct Battle battle);
 void runTournament();
 
 int main(){
-	// mt_state* generator = mt_getstate();
+	uint32_t switchLocation = mt_goodseed();
+	printf("Random number: %d\n",switchLocation);
+	int firstDigit = switchLocation % 50;
+	printf("First digit: %d\n",firstDigit);
+	switchLocation = switchLocation - firstDigit;
+	int secondDigit = switchLocation % (50^2);
+	printf("Second digit: %d\n",secondDigit);
+	switchLocation = switchLocation - secondDigit*50;
+	int thirdDigit = switchLocation % (50^3);
+	printf("Third digit: %d\n",thirdDigit);
+	switchLocation = switchLocation - thirdDigit*50^2;
+	// int fourthDigit = switchLocation % (20^4);
+	// printf("Fourth digit: %d\n",fourthDigit);
+	// switchLocation = switchLocation - fourthDigit*20^3;
+	// int fifthDigit = switchLocation % (20^5);
+	// printf("Fifth Digit: %d\n",fifthDigit);
+	// switchLocation = switchLocation - fifthDigit*20^4;
+	// int sixthDigit = switchLocation % (20^6);
+	// printf("Sixth Digit: %d\n",sixthDigit);
+	return 0;
 
 	int score = 0;
 	char winner[50];
@@ -37,9 +56,11 @@ int main(){
 	threes = "33333333333333333333333333333333333333333333333333";
 	struct Battle battle;
 	int i = 0;
+	printf("Before loop\n");
 	while(i < 1)
 	{
 		runTournament(winner);
+		printf("After tournament\n");
  		battle = duel(winner,threes);
  		if(battle.score > 10)
  		{
@@ -48,7 +69,9 @@ int main(){
  		i++;
 	}
 	char winner2[50];
+	printf("After final duel\n");
 	getWinner(winner2,battle);
+
 	printf("Winning gene: %s\n",winner2);
 
 	printBattle(battle);
@@ -87,6 +110,7 @@ void runTournament(char * winner){
 	fscanf(fptr,"%s",h);
 
 	fclose(fptr);
+	printf("File read and closed\n");
 
 	// make them duel
 	struct Battle battle1 = duel(a,b);
@@ -94,6 +118,7 @@ void runTournament(char * winner){
 	struct Battle battle3 = duel(e,f);
 	struct Battle battle4 = duel(g,h);
 
+	printf("Battle 1 fought\n");
 	char winner1[50];
 	getWinner(winner1,battle1);
 
@@ -105,6 +130,7 @@ void runTournament(char * winner){
 
 	char winner4[50];
 	getWinner(winner4,battle4);
+	printf("Winners found\n");
 
 	struct Battle playoff1 = duel(winner1,winner2);
 	struct Battle playoff2 = duel(winner3,winner4);
@@ -116,10 +142,7 @@ void runTournament(char * winner){
 	getWinner(finalist2,playoff2);
 
 	struct Battle finalBattle = duel(finalist1,finalist2);
-
-	// printBattle(finalBattle);
-
-
+	printf("Final battle fought\n");
 	getWinner(winner,finalBattle);
 }
 
@@ -139,8 +162,7 @@ struct Battle duel(char *a, char *b){
 	// Determine victor and score the battle
 	if(battle.count1 > battle.count2)
 	{	
-		battle.victor = 0;
-		// strcpy(battle.winningGene,battle.a);
+		// battle.victor = 0;
 		if(battle.rounds < 100)
 			battle.score = 20;
 		else if(battle.rounds < 200)
@@ -160,8 +182,7 @@ struct Battle duel(char *a, char *b){
 	}
 	else
 	{
-		battle.victor = 1;
-		// strcpy(battle.winningGene,battle.a);
+		// battle.victor = 1;
 		if(battle.rounds < 100)
 			battle.score = 0;
 		else if(battle.rounds < 200)
@@ -183,16 +204,14 @@ struct Battle duel(char *a, char *b){
 	return battle;
 }
 
-// get winning gene -- for now this just copies the gene that one,
-// in the future this will encapsulate the mutation function
+// get winning gene -- mutates the genes of the two mites accoring
+// to the score of the duel.
+// TODO: convert to 6 numbers 1-20 to reduce number of times i need to grab
+// a random number
 void getWinner(char * winner, struct Battle battle){
+	printf("Before random number\n");
 	uint32_t switchLocation = mt_goodseed();
-	// uint32_t test2;
-	// test = mt_goodseed();
-	// test2 = mt_goodseed();
-	// printf("random number: %d\n",test);
-	// printf("random number: %d\n",test2);
-
+	printf("After random number: %d\n",switchLocation);
 	// start indexing at a random location
 	int index = switchLocation % 20;
 	// get the gene from a
@@ -210,11 +229,6 @@ void getWinner(char * winner, struct Battle battle){
 		// make sure index is always (0,49)
 		index = (index+1) % 50;
 	}
-
-	// if(battle.victor == 0)
-	// 	strcpy(winner,battle.a);
-	// else
-	// 	strcpy(winner,battle.b);
 }
 
 // print the results of a battle
