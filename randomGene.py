@@ -7,9 +7,13 @@ def randomGene():
 	genome = ''.join(genome)
 	return genome
 
-gene1 = randomGene()
-gene2 = randomGene()
+# print "Generating new genes now"
+threes = ['3']*50
+threes = ''.join(threes)
 f = open('gene.txt','w');
-f.write(gene1)
-f.write('\n')
-f.write(gene2)
+for i in range(0,8):
+	f.write(randomGene())
+	f.write('\n')
+# f.write(threes)
+
+f.close()

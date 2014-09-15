@@ -11,6 +11,8 @@ struct Battle {
 	char *a;
 	char *b;
 	int victor;
+	int score;
+
 };
 
 // Take two gene strings and run a tournament
@@ -19,35 +21,102 @@ struct Battle duel(char *a, char *b);
 // Print the results of the tournament
 void printBattle(struct Battle battle);
 
+// set c to the gene of the winning mite
+void getWinner(char * winner,struct Battle battle);
+
+// returns winner of tournament of random 8 genes
+void runTournament();
 
 int main(){
+	int score = 0;
+	char winner[50];
+	char *threes;
+	threes = "33333333333333333333333333333333333333333333333333";
+	struct Battle battle;
+	int i = 0;
+	while(i < 100)
+	{
+		runTournament(winner);
+ 		battle = duel(winner,threes);
+ 		if(battle.score > 10)
+ 		{
+ 			break;
+ 		}
+ 		i++;
+	}
+
+	printf("Winning gene: %s\n",winner);
+
+	printBattle(battle);
+
+	return 0;
+	
+}
+
+void runTournament(char * winner){
+	// generate random genes
+	system("python randomGene.py");
+	// read genes from file gene.txt
 	char a[50];
 	char b[50];
+	char c[50];
+	char d[50];
+	char e[50];
+	char f[50];
+	char g[50];
+	char h[50];
+
 	FILE *fptr;
 	fptr = fopen("gene.txt","r");
 	if(fptr==NULL){
 		printf("ERROR");
 		exit(1);
 	}
+
 	fscanf(fptr,"%s",a);
 	fscanf(fptr,"%s",b);
+	fscanf(fptr,"%s",c);
+	fscanf(fptr,"%s",d);
+	fscanf(fptr,"%s",e);
+	fscanf(fptr,"%s",f);
+	fscanf(fptr,"%s",g);
+	fscanf(fptr,"%s",h);
+
 	fclose(fptr);
-	// return 0;
 
-	struct Battle battle = duel(a,b);
-	printBattle(battle);
+	// make them duel
+	struct Battle battle1 = duel(a,b);
+	struct Battle battle2 = duel(c,d);
+	struct Battle battle3 = duel(e,f);
+	struct Battle battle4 = duel(g,h);
 
-	int tempScore = score(battle);
-	printf("score: %d\n",tempScore);
+	char winner1[50];
+	getWinner(winner1,battle1);
 
-	// char c[50];
-	// winner(battle,c);
-	// printf("Winner's gene: %s\n",c);
-	// int tempInt = 3;
-	// char tempChar = (char)(((int)'0')+tempInt);
-	// printf("3 == %c\n",tempChar);
+	char winner2[50];
+	getWinner(winner2,battle2);
 
-	return 0;
+	char winner3[50];
+	getWinner(winner3,battle3);
+
+	char winner4[50];
+	getWinner(winner4,battle4);
+
+	struct Battle playoff1 = duel(winner1,winner2);
+	struct Battle playoff2 = duel(winner3,winner4);
+
+	char finalist1[50];
+	getWinner(finalist1,playoff1);
+
+	char finalist2[50];
+	getWinner(finalist2,playoff2);
+
+	struct Battle finalBattle = duel(finalist1,finalist2);
+
+	// printBattle(finalBattle);
+
+
+	getWinner(winner,finalBattle);
 }
 
 struct Battle duel(char *a, char *b){
@@ -63,66 +132,65 @@ struct Battle duel(char *a, char *b){
 	SetGeneFromString(battle.b,g+1);
 	FastDuel(g,g+1,&battle.rounds,&battle.count1,&battle.count2);
 
-	if(battle.count1 > battle.count2)	
+	// Determine victor and score the battle
+	if(battle.count1 > battle.count2)
+	{	
 		battle.victor = 0;
-	else 
+		// strcpy(battle.winningGene,battle.a);
+		if(battle.rounds < 100)
+			battle.score = 20;
+		else if(battle.rounds < 200)
+			battle.score = 19;
+		else if(battle.rounds < 300)
+			battle.score = 18;
+		else if(battle.rounds < 500)
+			battle.score = 17;
+		else if(battle.count1/battle.count2 >= 10)
+			battle.score = 13;
+		else if(battle.count1/battle.count2 >= 3)
+			battle.score = 12;
+		else if((float)battle.count1/(float)battle.count2 >= 1.5)
+			battle.score = 11;
+		else 
+			battle.score = 10;
+	}
+	else
+	{
 		battle.victor = 1;
+		// strcpy(battle.winningGene,battle.a);
+		if(battle.rounds < 100)
+			battle.score = 0;
+		else if(battle.rounds < 200)
+			battle.score = 1;
+		else if(battle.rounds < 300)
+			battle.score = 2;
+		else if(battle.rounds < 500)
+			battle.score = 3;
+		else if(battle.count2/battle.count1 >= 10)
+			battle.score = 7;
+		else if(battle.count2/battle.count1 >= 3)
+			battle.score = 8;
+		else if((float)battle.count2/(float)battle.count1 >= 1.5)
+			battle.score = 9;
+		else 
+			battle.score = 10;
+	}
 
 	return battle;
 }
 
-// return score for mite A
-int score(struct Battle battle){
+// get winning gene -- for now this just copies the gene that one,
+// in the future this will encapsulate the mutation function
+void getWinner(char * winner, struct Battle battle){
 	if(battle.victor == 0)
-	{
-		if(battle.rounds < 100)
-			return 20;
-		else if(battle.rounds < 200)
-			return 19;
-		else if(battle.rounds < 300)
-			return 18;
-		else if(battle.rounds < 500)
-			return 17;
-		else if(battle.count1/battle.count2 > 10)
-			return 13;
-		else if(battle.count1/battle.count2 > 3)
-			return 12;
-		else if(battle.count1/battle.count2 > 1.5)
-			return 11;
-		else 
-			return 10;
-	}
+		strcpy(winner,battle.a);
 	else
-	{
-		if(battle.rounds < 100)
-			return 0;
-		else if(battle.rounds < 200)
-			return 1;
-		else if(battle.rounds < 300)
-			return 2;
-		else if(battle.rounds < 500)
-			return 3;
-		else if(battle.count2/battle.count1 > 10)
-			return 7;
-		else if(battle.count2/battle.count1 > 3)
-			return 8;
-		else if(battle.count2/battle.count1 > 1.5)
-			return 9;
-		else 
-			return 10;
-	}
+		strcpy(winner,battle.b);
 }
-
-// // return the winner's char array
-// void winner(struct Battle battle,char * winner){
-// 	if(battle.victor == 0)
-// 		winner = battle.a;
-// 	else
-// 		winner = battle.b;
-// }
 
 // print the results of a battle
 void printBattle(struct Battle battle){
 	printf("Gene 1:\n%s\nGene 2:\n%s\nRounds fought: %d\n",battle.a,battle.b,battle.rounds);
 	printf("Remaining type-1 mites: %d\nRemaining type-2 mites: %d\n",battle.count1,battle.count2);
+	printf("Final score for mite A: %d\n",battle.score);
 }
