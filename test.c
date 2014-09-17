@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "PacWarGuts.c"
+#include "mtwist.c"
 
 // data from an individual battle
 struct Battle {
@@ -28,13 +29,15 @@ void getWinner(char * winner,struct Battle battle);
 void runTournament();
 
 int main(){
+	// mt_state* generator = mt_getstate();
+
 	int score = 0;
 	char winner[50];
 	char *threes;
 	threes = "33333333333333333333333333333333333333333333333333";
 	struct Battle battle;
 	int i = 0;
-	while(i < 100)
+	while(i < 1)
 	{
 		runTournament(winner);
  		battle = duel(winner,threes);
@@ -44,8 +47,9 @@ int main(){
  		}
  		i++;
 	}
-
-	printf("Winning gene: %s\n",winner);
+	char winner2[50];
+	getWinner(winner2,battle);
+	printf("Winning gene: %s\n",winner2);
 
 	printBattle(battle);
 
@@ -182,10 +186,35 @@ struct Battle duel(char *a, char *b){
 // get winning gene -- for now this just copies the gene that one,
 // in the future this will encapsulate the mutation function
 void getWinner(char * winner, struct Battle battle){
-	if(battle.victor == 0)
-		strcpy(winner,battle.a);
-	else
-		strcpy(winner,battle.b);
+	uint32_t switchLocation = mt_goodseed();
+	// uint32_t test2;
+	// test = mt_goodseed();
+	// test2 = mt_goodseed();
+	// printf("random number: %d\n",test);
+	// printf("random number: %d\n",test2);
+
+	// start indexing at a random location
+	int index = switchLocation % 20;
+	// get the gene from a
+	strcpy(winner,battle.a);
+	// counter of number of genes to switch
+	int count = 0;
+	// switch a number of bits proportional to the score
+	int digitsToSwitch = 50 - (5 * battle.score) / 2;
+	// while we still have more bits to flip
+	while(count < digitsToSwitch)
+	{
+		// set "winner" bits to bits from b
+		winner[index] = battle.b[index];
+		count++;
+		// make sure index is always (0,49)
+		index = (index+1) % 50;
+	}
+
+	// if(battle.victor == 0)
+	// 	strcpy(winner,battle.a);
+	// else
+	// 	strcpy(winner,battle.b);
 }
 
 // print the results of a battle
