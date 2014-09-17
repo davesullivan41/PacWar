@@ -39,6 +39,7 @@ set display_clockCount 0  ;# how long simulation has run
 # These are the pre-loaded species
 set spec(ones) "11111111111111111111111111111111111111111111111111"
 set spec(threes) "33333333333333333333333333333333333333333333333333"
+set spec(rand) "11013111211200312303323113033030223233000303030311"
 
 # ------------------------------------------------
 # ---------------- utility procedures ------------
