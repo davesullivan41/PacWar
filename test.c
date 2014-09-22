@@ -16,7 +16,9 @@ struct Battle {
 };
 
 // returns winner of tournament of random 8 genes
-void runTournament();
+void runTournament(char *winner,int print);
+
+void runManualTournament(char *a, char *b,char *c, char *d, char *e, char *f, char *g, char *h,char *winner);
 
 // returns a Battle between a and b
 struct Battle duel(char *a, char *b);
@@ -32,24 +34,47 @@ void getWinner(char * winner,struct Battle battle,int randomDigit);
 void printBattle(struct Battle battle);
 
 int main(){
-	int score = 0;
-	char winner[50];
+	// int score = 0;
+	// char winner[50];
 	char *threes;
 	threes = "33333333333333333333333333333333333333333333333333";
-	struct Battle battle;
-	int i = 0;
-	// printf("Before loop\n");
-	while(i < 1)
-	{
-		runTournament(winner,1);
-		// printf("After tournament\n");
- 		// battle = duel(winner,threes);
- 		if(battle.score > 10)
- 		{
- 			break;
- 		}
- 		i++;
-	}
+	// struct Battle battle;
+	// int i = 0;
+	// // printf("Before loop\n");
+	// while(i < 1)
+	// {
+	// 	runTournament(winner,1);
+	// 	// printf("After tournament\n");
+ // 		// battle = duel(winner,threes);
+ // 		if(battle.score > 10)
+ // 		{
+ // 			break;
+ // 		}
+ // 		i++;
+	// }
+	char a[50];
+	char b[50];
+	char c[50];
+	char d[50];
+	char e[50];
+	char f[50];
+	char g[50];
+	char h[50];
+	char winner[50];
+	runTournament(a,1);
+	runTournament(b,1);
+	runTournament(c,1);
+	runTournament(d,1);
+	runTournament(e,1);
+	runTournament(f,1);
+	runTournament(g,1);
+	runTournament(h,1);
+	runManualTournament(a,b,c,d,e,f,g,h,winner);
+
+	struct Battle finalBattle;
+	finalBattle = duel(winner,threes);
+	printBattle(finalBattle);
+	
 	// char winner2[50];
 	// printf("After final duel\n");
 	// getWinner(winner2,battle);
@@ -138,6 +163,86 @@ void runTournament(char * winner,int print){
 	getWinner(winner,finalBattle,digits[6]);
 }
 
+// sets winner to the winning gene of tournament of random 8 genes
+void runManualTournament(char *a, char *b,char *c, char *d, char *e, char *f, char *g, char *h, char *winner){
+	// generate random genes - python
+	// system("python randomGene.py");
+	// // read genes from file gene.txt
+	// char a[50];
+	// char b[50];
+	// char c[50];
+	// char d[50];
+	// char e[50];
+	// char f[50];
+	// char g[50];
+	// char h[50];
+
+	// FILE *fptr;
+	// fptr = fopen("gene.txt","r");
+	// if(fptr==NULL){
+	// 	printf("ERROR");
+	// 	exit(1);
+	// }
+
+	// fscanf(fptr,"%s",a);
+	// fscanf(fptr,"%s",b);
+	// fscanf(fptr,"%s",c);
+	// fscanf(fptr,"%s",d);
+	// fscanf(fptr,"%s",e);
+	// fscanf(fptr,"%s",f);
+	// fscanf(fptr,"%s",g);
+	// fscanf(fptr,"%s",h);
+
+	// fclose(fptr);
+	// printf("File read and closed\n");
+	// char winner[50];
+	int digits[7];
+	randomDigits(digits);
+
+
+	// make them duel
+	struct Battle battle1 = duel(a,b);
+	struct Battle battle2 = duel(c,d);
+	struct Battle battle3 = duel(e,f);
+	struct Battle battle4 = duel(g,h);
+	// printBattle(battle1);
+	// printBattle(battle2);
+	// printBattle(battle3);
+	// printBattle(battle4);
+
+	// printf("Battle 1 fought\n");
+	char winner1[50];
+	getWinner(winner1,battle1,digits[0]);
+
+	char winner2[50];
+	getWinner(winner2,battle2,digits[1]);
+
+	char winner3[50];
+	getWinner(winner3,battle3,digits[2]);
+
+	char winner4[50];
+	getWinner(winner4,battle4,digits[3]);
+	// printf("Winners found\n");
+
+	struct Battle playoff1 = duel(winner1,winner2);
+	struct Battle playoff2 = duel(winner3,winner4);
+	// printBattle(playoff1);
+	// printBattle(playoff2);
+
+	char finalist1[50];
+	getWinner(finalist1,playoff1,digits[4]);
+
+	char finalist2[50];
+	getWinner(finalist2,playoff2,digits[5]);
+
+	struct Battle finalBattle = duel(finalist1,finalist2);
+
+	printBattle(finalBattle);
+	// printf("Final battle fought\n");
+	getWinner(winner,finalBattle,digits[6]);
+	// return winner;
+}
+
 // returns a Battle between a and b
 struct Battle duel(char *a, char *b){
 	struct Battle battle;
@@ -219,15 +324,15 @@ void randomDigits(int * digits){
 	switchLocation = switchLocation - digits[4]*50;
 	digits[5] = (switchLocation % (50^3)) % 50;
 	// printf("Second digit: %d\n",secondDigit);
-	switchLocation = switchLocation - digits[5]*50^2;
+	switchLocation = switchLocation - digits[5]*(50^2);
 	digits[6] = (switchLocation % (50^4)) % 50;
-	printf("Digit: %d\n",digits[0]);
-	printf("Digit: %d\n",digits[1]);
-	printf("Digit: %d\n",digits[2]);
-	printf("Digit: %d\n",digits[3]);
-	printf("Digit: %d\n",digits[4]);
-	printf("Digit: %d\n",digits[5]);
-	printf("Digit: %d\n",digits[6]);
+	// printf("Digit: %d\n",digits[0]);
+	// printf("Digit: %d\n",digits[1]);
+	// printf("Digit: %d\n",digits[2]);
+	// printf("Digit: %d\n",digits[3]);
+	// printf("Digit: %d\n",digits[4]);
+	// printf("Digit: %d\n",digits[5]);
+	// printf("Digit: %d\n",digits[6]);
 }
 
 // set winner to the gene of the winning mite of battle and mutate 

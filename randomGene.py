@@ -15,10 +15,10 @@ ones = ''.join(ones)
 f = open('gene.txt','w');
 # f.write(ones)
 # f.write('\n')
-for i in range(0,7):
+for i in range(0,8):
 	f.write(randomGene())
 	f.write('\n')
-f.write(threes)
+# f.write(threes)
 
 f.close()
 # print "Finished generating genes"
