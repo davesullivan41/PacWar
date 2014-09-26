@@ -15,10 +15,25 @@ struct Battle {
 	int score;
 };
 
-// returns winner of tournament of random 8 genes
-void runTournament(char *winner,int print);
+struct Contestants{
+	char *a;
+	char *b;
+	char *c;
+	char *d;
+	char *e;
+	char *f;
+	char *g;
+	char *h;
+};
 
-void runManualTournament(char *a, char *b,char *c, char *d, char *e, char *f, char *g, char *h,char *winner);
+struct Contestants *createContestants();
+
+struct Contestants *eliminationRound(struct Contestants *seed);
+
+// returns winner of tournament of random 8 genes
+void randomTournament(char *winner,int print);
+
+void runManualTournament(struct Contestants *winners,char *winner);
 
 // returns a Battle between a and b
 struct Battle duel(char *a, char *b);
@@ -34,6 +49,7 @@ void getWinner(char * winner,struct Battle battle,int randomDigit);
 void printBattle(struct Battle battle);
 
 int main(){
+
 	// int score = 0;
 	// char winner[50];
 	char *threes;
@@ -43,7 +59,7 @@ int main(){
 	// // printf("Before loop\n");
 	// while(i < 1)
 	// {
-	// 	runTournament(winner,1);
+	// 	randomTournament(winner,1);
 	// 	// printf("After tournament\n");
  // 		// battle = duel(winner,threes);
  // 		if(battle.score > 10)
@@ -52,41 +68,103 @@ int main(){
  // 		}
  // 		i++;
 	// }
-	char a[50];
-	char b[50];
-	char c[50];
-	char d[50];
-	char e[50];
-	char f[50];
-	char g[50];
-	char h[50];
+	// char a[50];
+	// char b[50];
+	// char c[50];
+	// char d[50];
+	// char e[50];
+	// char f[50];
+	// char g[50];
+	// char h[50];
+
+
+	// run randomTournament to get random 8 genes for seed,
+	// then pass Contesants struct to eliminationRound to produce winner
+	// of seed genes and 8 random genes, then pass result to manual tournament
+	// to find the winner. 
+
+	// final code will run elimination round + manual tournament 8 times 
+	// on the same set of seed genes and produce a new Contestants seed
+	// which will be used to run the algorithm again
+	// Thoughts: after each elimination round + manual tournament, write results
+	// to log file
 	char winner[50];
-	runTournament(a,1);
-	runTournament(b,1);
-	runTournament(c,1);
-	runTournament(d,1);
-	runTournament(e,1);
-	runTournament(f,1);
-	runTournament(g,1);
-	runTournament(h,1);
-	runManualTournament(a,b,c,d,e,f,g,h,winner);
 
-	struct Battle finalBattle;
-	finalBattle = duel(winner,threes);
-	printBattle(finalBattle);
+	struct Contestants *seed = createContestants();
+	randomTournament(seed->a,0);
+	randomTournament(seed->b,0);
+	randomTournament(seed->c,0);
+	randomTournament(seed->d,0);
+	randomTournament(seed->e,0);
+	randomTournament(seed->f,0);
+	randomTournament(seed->g,0);
+	randomTournament(seed->h,0);
+
+	struct Contestants *winners = eliminationRound(seed);
+
+	runManualTournament(winners,winner);
+
+	struct Battle battle = duel(winner,threes);
+	printBattle(battle);
 	
-	// char winner2[50];
-	// printf("After final duel\n");
-	// getWinner(winner2,battle);
-
-	// printf("Winning gene: %s\n",winner2);
-
-	// printBattle(battle);
-
 	return 0;	
 }
+
+struct Contestants *eliminationRound(struct Contestants *seed)
+{
+	struct Contestants *contestants = createContestants();
+	// generate random genes - python
+	system("python randomGene.py");
+
+	FILE *fptr;
+	fptr = fopen("gene.txt","r");
+	if(fptr==NULL){
+		printf("ERROR");
+		exit(1);
+	}
+
+	fscanf(fptr,"%s",contestants->a);
+	fscanf(fptr,"%s",contestants->b);
+	fscanf(fptr,"%s",contestants->c);
+	fscanf(fptr,"%s",contestants->d);
+	fscanf(fptr,"%s",contestants->e);
+	fscanf(fptr,"%s",contestants->f);
+	fscanf(fptr,"%s",contestants->g);
+	fscanf(fptr,"%s",contestants->h);
+
+	fclose(fptr);
+
+	struct Battle battle1 = duel(seed->a,contestants->a);
+	struct Battle battle2 = duel(seed->b,contestants->b);
+	struct Battle battle3 = duel(seed->c,contestants->c);
+	struct Battle battle4 = duel(seed->d,contestants->d);
+	struct Battle battle5 = duel(seed->e,contestants->e);
+	struct Battle battle6 = duel(seed->f,contestants->f);
+	struct Battle battle7 = duel(seed->g,contestants->g);
+	struct Battle battle8 = duel(seed->h,contestants->h);
+
+	struct Contestants *winners = createContestants();
+
+	int digits[7];
+	randomDigits(digits);
+
+	getWinner(winners->a,battle1,digits[0]);
+	getWinner(winners->b,battle2,digits[1]);
+	getWinner(winners->c,battle3,digits[2]);
+	getWinner(winners->d,battle4,digits[3]);
+
+	randomDigits(digits);
+
+	getWinner(winners->e,battle5,digits[0]);
+	getWinner(winners->f,battle6,digits[1]);
+	getWinner(winners->g,battle7,digits[2]);
+	getWinner(winners->h,battle8,digits[3]);
+
+	return winners;
+}
+
 // sets winner to the winning gene of tournament of random 8 genes
-void runTournament(char * winner,int print){
+void randomTournament(char * winner,int print){
 	// generate random genes - python
 	system("python randomGene.py");
 	// read genes from file gene.txt
@@ -164,47 +242,16 @@ void runTournament(char * winner,int print){
 }
 
 // sets winner to the winning gene of tournament of random 8 genes
-void runManualTournament(char *a, char *b,char *c, char *d, char *e, char *f, char *g, char *h, char *winner){
-	// generate random genes - python
-	// system("python randomGene.py");
-	// // read genes from file gene.txt
-	// char a[50];
-	// char b[50];
-	// char c[50];
-	// char d[50];
-	// char e[50];
-	// char f[50];
-	// char g[50];
-	// char h[50];
-
-	// FILE *fptr;
-	// fptr = fopen("gene.txt","r");
-	// if(fptr==NULL){
-	// 	printf("ERROR");
-	// 	exit(1);
-	// }
-
-	// fscanf(fptr,"%s",a);
-	// fscanf(fptr,"%s",b);
-	// fscanf(fptr,"%s",c);
-	// fscanf(fptr,"%s",d);
-	// fscanf(fptr,"%s",e);
-	// fscanf(fptr,"%s",f);
-	// fscanf(fptr,"%s",g);
-	// fscanf(fptr,"%s",h);
-
-	// fclose(fptr);
-	// printf("File read and closed\n");
-	// char winner[50];
+void runManualTournament(struct Contestants *winners, char *winner){
 	int digits[7];
 	randomDigits(digits);
 
 
 	// make them duel
-	struct Battle battle1 = duel(a,b);
-	struct Battle battle2 = duel(c,d);
-	struct Battle battle3 = duel(e,f);
-	struct Battle battle4 = duel(g,h);
+	struct Battle battle1 = duel(winners->a,winners->b);
+	struct Battle battle2 = duel(winners->c,winners->d);
+	struct Battle battle3 = duel(winners->e,winners->f);
+	struct Battle battle4 = duel(winners->g,winners->h);
 	// printBattle(battle1);
 	// printBattle(battle2);
 	// printBattle(battle3);
@@ -359,6 +406,23 @@ void getWinner(char * winner, struct Battle battle,int randomDigit){
 		// make sure index is always (0,49)
 		index = (index+1) % 50;
 	}
+}
+
+struct Contestants *createContestants(){
+	struct Contestants *contestants = malloc(sizeof(struct Contestants));
+	assert(contestants != NULL);
+
+	contestants->a = malloc(sizeof(char)*50);
+	contestants->b = malloc(sizeof(char)*50);
+	contestants->c = malloc(sizeof(char)*50);
+	contestants->d = malloc(sizeof(char)*50);
+	contestants->e = malloc(sizeof(char)*50);
+	contestants->f = malloc(sizeof(char)*50);
+	contestants->g = malloc(sizeof(char)*50);
+	contestants->h = malloc(sizeof(char)*50);
+
+	return contestants;
+
 }
 
 // print the results of a battle
