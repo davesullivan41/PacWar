@@ -28,6 +28,10 @@ struct Contestants{
 
 struct Contestants *createContestants();
 
+void destroyContestants(struct Contestants *contestants);
+
+struct Contestants *contestantCopy(struct Contestants *contestants);
+
 struct Contestants *eliminationRound(struct Contestants *seed);
 
 // returns winner of tournament of random 8 genes
@@ -50,32 +54,8 @@ void printBattle(struct Battle battle);
 
 int main(){
 
-	// int score = 0;
-	// char winner[50];
-	char *threes;
-	threes = "33333333333333333333333333333333333333333333333333";
-	// struct Battle battle;
-	// int i = 0;
-	// // printf("Before loop\n");
-	// while(i < 1)
-	// {
-	// 	randomTournament(winner,1);
-	// 	// printf("After tournament\n");
- // 		// battle = duel(winner,threes);
- // 		if(battle.score > 10)
- // 		{
- // 			break;
- // 		}
- // 		i++;
-	// }
-	// char a[50];
-	// char b[50];
-	// char c[50];
-	// char d[50];
-	// char e[50];
-	// char f[50];
-	// char g[50];
-	// char h[50];
+
+
 
 
 	// run randomTournament to get random 8 genes for seed,
@@ -88,25 +68,73 @@ int main(){
 	// which will be used to run the algorithm again
 	// Thoughts: after each elimination round + manual tournament, write results
 	// to log file
-	char winner[50];
+	// char winner[50];
 
+	// printf("Before seed\n");
 	struct Contestants *seed = createContestants();
+	// printf("Before random tournaments 1-4\n");
 	randomTournament(seed->a,0);
 	randomTournament(seed->b,0);
 	randomTournament(seed->c,0);
 	randomTournament(seed->d,0);
+	// printf("Before random tournaments 5-8\n");
 	randomTournament(seed->e,0);
 	randomTournament(seed->f,0);
 	randomTournament(seed->g,0);
 	randomTournament(seed->h,0);
+	// seed->h = "33333333333333333333333333333333333333333333333333";
+	struct Contestants *winners;
+	int i =0;
+	while(i<100)
+	{
+		// after initial seed, run 8 tournaments and store winners into a new contestants struct
+		winners = createContestants();
+		// printf("Before elimination round\n");
+		struct Contestants *winners1 = eliminationRound(seed);
+		runManualTournament(winners1,winners->a);
+		struct Contestants *winners2 = eliminationRound(seed);
+		runManualTournament(winners2,winners->b);
+		struct Contestants *winners3 = eliminationRound(seed);
+		runManualTournament(winners3,winners->c);
+		struct Contestants *winners4 = eliminationRound(seed);
+		runManualTournament(winners4,winners->d);
+		struct Contestants *winners5 = eliminationRound(seed);
+		runManualTournament(winners5,winners->e);
+		struct Contestants *winners6 = eliminationRound(seed);
+		runManualTournament(winners6,winners->f);
+		struct Contestants *winners7 = eliminationRound(seed);
+		runManualTournament(winners7,winners->g);
+		struct Contestants *winners8 = eliminationRound(seed);
+		runManualTournament(winners8,winners->h);
 
-	struct Contestants *winners = eliminationRound(seed);
+		destroyContestants(seed);
 
+		// printf("Before manual tournament\n");
+		destroyContestants(winners1);
+		destroyContestants(winners2);
+		destroyContestants(winners3);
+		destroyContestants(winners4);
+		destroyContestants(winners5);
+		destroyContestants(winners6);
+		destroyContestants(winners7);
+		destroyContestants(winners8);
+	
+		seed = contestantCopy(winners);
+		destroyContestants(winners);
+		i++;
+	}	
+
+	char *threes;
+	threes = "33333333333333333333333333333333333333333333333333";
+
+	char winner[50];
+	winners = eliminationRound(seed);
 	runManualTournament(winners,winner);
 
+	// printf("Before final battle\n");
 	struct Battle battle = duel(winner,threes);
 	printBattle(battle);
-	
+
 	return 0;	
 }
 
@@ -196,7 +224,9 @@ void randomTournament(char * winner,int print){
 	fclose(fptr);
 	// printf("File read and closed\n");
 	int digits[7];
+	// printf("Before random digit generation\n");
 	randomDigits(digits);
+	// printf("After random digit generation\n");
 
 
 	// make them duel
@@ -284,7 +314,7 @@ void runManualTournament(struct Contestants *winners, char *winner){
 
 	struct Battle finalBattle = duel(finalist1,finalist2);
 
-	printBattle(finalBattle);
+	// printBattle(finalBattle);
 	// printf("Final battle fought\n");
 	getWinner(winner,finalBattle,digits[6]);
 	// return winner;
@@ -316,7 +346,7 @@ struct Battle duel(char *a, char *b){
 			battle.score = 18;
 		else if(battle.rounds < 500)
 			battle.score = 17;
-		else if(battle.count1/battle.count2 >= 10)
+		else if(battle.count2 == 0 || battle.count1/battle.count2 >= 10)
 			battle.score = 13;
 		else if(battle.count1/battle.count2 >= 3)
 			battle.score = 12;
@@ -336,7 +366,7 @@ struct Battle duel(char *a, char *b){
 			battle.score = 2;
 		else if(battle.rounds < 500)
 			battle.score = 3;
-		else if(battle.count2/battle.count1 >= 10)
+		else if(battle.count1 == 0 || battle.count2/battle.count1 >= 10)
 			battle.score = 7;
 		else if(battle.count2/battle.count1 >= 3)
 			battle.score = 8;
@@ -351,8 +381,9 @@ struct Battle duel(char *a, char *b){
 
 // fill digits with 7 random numbers (0,49) inclusive
 void randomDigits(int * digits){
+	// printf("Starting random number generation");
 	// digits = int[6];
-	uint32_t switchLocation = mt_goodseed();
+	uint32_t switchLocation = mt_seed();
 	// printf("Random number: %d\n",switchLocation);
 	digits[0] = switchLocation % 50;
 	// printf("First digit: %d\n",firstDigit);
@@ -362,7 +393,7 @@ void randomDigits(int * digits){
 	switchLocation = switchLocation - digits[1]*50;
 	digits[2] = (switchLocation % (50^3)) % 50;
 
-	switchLocation = mt_goodseed();
+	switchLocation = mt_seed();
 	digits[3] = switchLocation % 50;
 	// printf("First digit: %d\n",firstDigit);
 	switchLocation = switchLocation - digits[3];
@@ -373,6 +404,7 @@ void randomDigits(int * digits){
 	// printf("Second digit: %d\n",secondDigit);
 	switchLocation = switchLocation - digits[5]*(50^2);
 	digits[6] = (switchLocation % (50^4)) % 50;
+	// printf("Finished random number generation");
 	// printf("Digit: %d\n",digits[0]);
 	// printf("Digit: %d\n",digits[1]);
 	// printf("Digit: %d\n",digits[2]);
@@ -422,7 +454,36 @@ struct Contestants *createContestants(){
 	contestants->h = malloc(sizeof(char)*50);
 
 	return contestants;
+}
 
+void destroyContestants(struct Contestants *contestants){
+	assert(contestants != NULL);
+
+	free(contestants->a);
+	free(contestants->b);
+	free(contestants->c);
+	free(contestants->d);
+	free(contestants->e);
+	free(contestants->f);
+	free(contestants->g);
+	free(contestants->h);
+
+	free(contestants);
+}
+
+struct Contestants *contestantCopy(struct Contestants *contestants){
+	struct Contestants *toBeReturned = createContestants();
+
+	strcpy(toBeReturned->a,contestants->a);
+	strcpy(toBeReturned->b,contestants->b);
+	strcpy(toBeReturned->c,contestants->c);
+	strcpy(toBeReturned->d,contestants->d);
+	strcpy(toBeReturned->e,contestants->e);
+	strcpy(toBeReturned->f,contestants->f);
+	strcpy(toBeReturned->g,contestants->g);
+	strcpy(toBeReturned->h,contestants->h);
+
+	return toBeReturned;
 }
 
 // print the results of a battle
