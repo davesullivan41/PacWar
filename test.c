@@ -1,8 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifndef PacWarGuts_c
+#define PacWarGuts_c
 #include "PacWarGuts.c"
+#endif
+
+#ifndef mtwist_c
+#define mtwist_c
 #include "mtwist.c"
+#endif
+
+// #include "GeneGenerator.h"
 
 // data from an individual battle
 struct Battle {
