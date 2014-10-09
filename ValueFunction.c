@@ -5,7 +5,7 @@
 #include "GeneGenerator.h"
 
 #ifndef VF_SIZE
-#define VF_SIZE 64
+#define VF_SIZE 16
 #endif
 
 struct GeneScore{
@@ -27,13 +27,13 @@ struct GeneScore *createGoodGeneScore();
 struct GeneScore *createBetterGeneScore();
 
 // free memory of gene score
-void deleteGeneScore(struct GeneScore *geneScore);
+void destroyGeneScore(struct GeneScore *geneScore);
 
 // create a value function with VF_SIZE "good" genes
 struct ValueFunction *createValueFunction();
 
 // free memory of value function
-void deleteValueFunction(struct ValueFunction *valueFunction);
+void destroyValueFunction(struct ValueFunction *valueFunction);
 
 // set a specific valueFunction location to a specific geneScore
 void setValueFunctionGene(struct ValueFunction *valueFunction,struct GeneScore *geneScore,int index);
@@ -46,7 +46,24 @@ char *getGene(struct ValueFunction *valueFunction,int index);
 
 // return 1 if geneA has a higher score than B, -1 if its less, 0 if they're equal
 int compareGenes(struct GeneScore *geneScoreA,struct GeneScore *geneScoreB);
+
+// swap gene i and gene j
+void swap(struct GeneScore **geneScore,int i,int j);
+
+// sort array using quicksort algorithm
+void geneSort(struct GeneScore **geneScores,int length);
+
+// sort when only one gene is not in the right spot
+void insertionSort(struct GeneScore **geneScores,int length);
+
+void updateValueFunction(struct ValueFunction *valueFunction,struct GeneScore *geneScore);
+
+// test genescore against the value function
+void testGene(struct ValueFunction *valueFunction,struct GeneScore *geneScore);
 //////////////////////////////////////////////////////////
+// Function definitions
+//////////////////////////////////////////////////////////
+
 // creates a gene with score of zero
 struct GeneScore *createGeneScore(char *gene){
 	// allocate space for structure
@@ -83,7 +100,7 @@ struct GeneScore *createBetterGeneScore(){
 }
 
 // free memory of gene score
-void deleteGeneScore(struct GeneScore *geneScore){
+void destroyGeneScore(struct GeneScore *geneScore){
 	assert(geneScore != NULL);
 	free(geneScore->gene);
 	free(geneScore);
@@ -100,7 +117,7 @@ struct ValueFunction *createValueFunction(){
 }
 
 // free memory of value function
-void deleteValueFunction(struct ValueFunction *valueFunction){
+void destroyValueFunction(struct ValueFunction *valueFunction){
 	free(valueFunction);
 }
 
@@ -119,15 +136,15 @@ char *getGene(struct ValueFunction *valueFunction,int index){
 	return valueFunction->geneScores[index]->gene;
 }
 
-// return -1 if geneA has a higher score than B, 1 if its less, 0 if they're equal
+// return 1 if geneA has a higher score than B, -1 if its less, 0 if they're equal
 int compareGenes(struct GeneScore *geneScoreA,struct GeneScore *geneScoreB){
 	if(geneScoreA->score > geneScoreB->score)
 	{
-		return -1;
+		return 1;
 	}
 	else if(geneScoreA->score < geneScoreB->score)
 	{
-		return 1;
+		return -1;
 	}
 	else
 	{
@@ -140,6 +157,7 @@ void swap(struct GeneScore **geneScore,int i,int j){
 	struct GeneScore *temp = geneScore[i];
 	geneScore[i] = geneScore[j];
 	geneScore[j] = temp;
+	// destroyGeneScore(temp);
 }
 
 // sort array using quicksort algorithm
@@ -161,6 +179,58 @@ void geneSort(struct GeneScore **geneScores,int length){
 	}
 	geneSort(&geneScores[0],i);
 	geneSort(&geneScores[i+1],length-i-1);
+}
+
+void insertionSort(struct GeneScore **geneScores,int length)
+{
+   int i, j;
+   struct GeneScore *key;
+   for (i = 1; i < length; i++)
+   {
+       key = geneScores[i];
+       j = i-1;
+       while (j >= 0 && compareGenes(geneScores[j],key) == 1)
+       {
+           geneScores[j+1] = geneScores[j];
+           j = j-1;
+       }
+       geneScores[j+1] = key;
+   }
+   // destroyGeneScore(key);
+}
+
+// test genescore against the value function
+void testGene(struct ValueFunction *valueFunction,struct GeneScore *geneScore){
+	int i;
+	struct Battle *battle;
+	// don't test against lowest-valued gene
+	for(i=1;i<VF_SIZE;i++)
+	{
+		battle = duel(geneScore->gene,getGene(valueFunction,i));
+		geneScore->score += battle->score;
+	}
+	destroyBattle(battle);
+}
+
+void updateValueFunction(struct ValueFunction *valueFunction,struct GeneScore *geneScore){
+	testGene(valueFunction,geneScore);
+	printf("New gene total score: %d\n",geneScore->score);
+	if(geneScore->score > getGeneScore(valueFunction,0)->score)
+	{
+		struct Battle *battleA;
+		struct Battle *battleB;
+		int i;
+		for(i=1;i<VF_SIZE;i++)
+		{
+			battleA = duel(getGene(valueFunction,i),geneScore->gene);
+			battleB = duel(getGene(valueFunction,i),getGene(valueFunction,0));
+			getGeneScore(valueFunction,i)->score += (battleA->score - battleB->score);
+		}
+		memcpy(valueFunction->geneScores[0],geneScore,sizeof(struct GeneScore));
+		insertionSort(valueFunction->geneScores,VF_SIZE);
+		destroyBattle(battleA);
+		destroyBattle(battleB);
+	}
 }
 
 int main(){
@@ -187,5 +257,29 @@ int main(){
 	{
 		printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
 	}
+
+	char *threes = "33333333333333333333333333333333333333333333333333";
+	battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
+	printf("Best gene score against threes: %d\n",battle->score);
+
+	// test adding another gene
+	struct GeneScore *geneScore = createBetterGeneScore();
+	for(i=0;i<100;i++)
+	{
+		updateValueFunction(valueFunction,geneScore);
+		geneScore = createBetterGeneScore();
+	}
+
+	battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
+	printf("Best gene score against threes: %d\n",battle->score);
+	// print the score of every gene
+	for(i=0;i<VF_SIZE;i++)
+	{
+		printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
+	}
+	destroyBattle(battle);
+	destroyValueFunction(valueFunction);
+
+
 	return 0;
 }
