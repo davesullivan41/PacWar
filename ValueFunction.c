@@ -5,7 +5,7 @@
 #include "GeneGenerator.h"
 
 #ifndef VF_SIZE
-#define VF_SIZE 16
+#define VF_SIZE 64
 #endif
 
 struct GeneScore{
@@ -119,15 +119,15 @@ char *getGene(struct ValueFunction *valueFunction,int index){
 	return valueFunction->geneScores[index]->gene;
 }
 
-// return 1 if geneA has a higher score than B, -1 if its less, 0 if they're equal
+// return -1 if geneA has a higher score than B, 1 if its less, 0 if they're equal
 int compareGenes(struct GeneScore *geneScoreA,struct GeneScore *geneScoreB){
 	if(geneScoreA->score > geneScoreB->score)
 	{
-		return 1;
+		return -1;
 	}
 	else if(geneScoreA->score < geneScoreB->score)
 	{
-		return -1;
+		return 1;
 	}
 	else
 	{
@@ -151,15 +151,11 @@ void geneSort(struct GeneScore **geneScores,int length){
 	int j;
 	for(j=1;j<length;j++)
 	{
-		// printf("Before compare %d\n",j);
 		if(compareGenes(geneScores[i],geneScores[j]) == 1){
-			printf("Before swaps %d\n",j);
 			swap(geneScores,i,i+1);
-			// printf("After first swap %d\n",j);
 			if(j != i+1){
 				swap(geneScores,i,j);
 			}
-			// printf("After second swap %d\n",j);
 			i++;
 		}
 	}
@@ -184,12 +180,6 @@ int main(){
 			getGeneScore(valueFunction,i)->score += battle->score;
 			getGeneScore(valueFunction,j)->score += (20 - battle->score);
 		}
-	}
-
-	// print the score of every gene
-	for(i=0;i<VF_SIZE;i++)
-	{
-		printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
 	}
 	geneSort(valueFunction->geneScores,VF_SIZE);
 	// print the score of every gene
