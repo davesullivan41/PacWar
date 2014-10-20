@@ -289,10 +289,23 @@ int main(){
 		updateValueFunction(valueFunction,geneScore);
 		average += ((float)geneScore->score)/10;
 		if(i % print == 0 && i != 0){
-			printf("Average score: %f\n",average);
-			average = (float)0;
+			if(silent == 1)
+			{
+				FILE *fptr;
+				fptr = fopen("results.txt","w");
+				for(i=0;i<VF_SIZE;i++)
+				{
+					fprintf(fptr,"%s #%d total score: %d\n",getGene(valueFunction,i),i,getGeneScore(valueFunction,i)->score);
+				}
+				fprintf(fptr,"Best gene score against threes: %d\n",battle->score);
+				fclose(fptr);
+			}
+			else
+			{	
+				printf("Average score: %f\n",average);
+				average = (float)0;
+			}
 		}
-		// destroyGeneScore(geneScore);
 		geneScore = createBetterGeneScore();
 	}
 	destroyGeneScore(geneScore);
@@ -306,9 +319,9 @@ int main(){
 		fptr = fopen("results.txt","w");
 		for(i=0;i<VF_SIZE;i++)
 		{
-			fprintf(fptr,"Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
-			fprintf(fptr,"Gene: %s\n",getGene(valueFunction,i));
+			fprintf(fptr,"%s #%d total score: %d\n",getGene(valueFunction,i),i,getGeneScore(valueFunction,i)->score);
 		}
+		fprintf(fptr,"Best gene score against threes: %d\n",battle->score);
 		fclose(fptr);
 	}
 	else
