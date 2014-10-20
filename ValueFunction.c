@@ -218,7 +218,7 @@ void testGene(struct ValueFunction *valueFunction,struct GeneScore *geneScore){
 
 void updateValueFunction(struct ValueFunction *valueFunction,struct GeneScore *geneScore){
 	testGene(valueFunction,geneScore);
-	printf("New gene total score: %d\n",geneScore->score);
+	// printf("New gene total score: %d\n",geneScore->score);
 	if(geneScore->score > getGeneScore(valueFunction,0)->score)
 	{
 		struct Battle *battleA;
@@ -269,9 +269,21 @@ int main(){
 	destroyBattle(battle);
 	// test adding another gene
 	struct GeneScore *geneScore = createBetterGeneScore();
-	for(i=0;i<100;i++)
+	int iterations;
+	int print;
+	printf("Enter total number of iterations:\n");
+	scanf("%d",&iterations);
+	printf("Enter number of iterations to average score over: \n");
+	scanf("%d",&print);
+	float average = 0;
+	for(i=0;i<iterations;i++)
 	{
 		updateValueFunction(valueFunction,geneScore);
+		average += ((float)geneScore->score)/10;
+		if(i % print == 0 && i != 0){
+			printf("Average score: %f\n",average);
+			average = (float)0;
+		}
 		// destroyGeneScore(geneScore);
 		geneScore = createBetterGeneScore();
 	}
