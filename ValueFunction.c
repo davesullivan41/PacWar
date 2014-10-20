@@ -1,11 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "GeneGenerator.h"
 
 #ifndef VF_SIZE
-#define VF_SIZE 16
+#define VF_SIZE 64
 #endif
 
 struct GeneScore{
@@ -271,10 +272,17 @@ int main(){
 	struct GeneScore *geneScore = createBetterGeneScore();
 	int iterations;
 	int print;
+	int silent;
 	printf("Enter total number of iterations:\n");
 	scanf("%d",&iterations);
 	printf("Enter number of iterations to average score over: \n");
 	scanf("%d",&print);
+	printf("Enter 1 to run program in background and save results to results.txt: \n");
+	scanf("%d",&silent);
+	if(silent == 1)
+	{
+		daemon(1,0);
+	}
 	float average = 0;
 	for(i=0;i<iterations;i++)
 	{
@@ -292,10 +300,24 @@ int main(){
 	battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
 	printf("Best gene score against threes: %d\n",battle->score);
 	// print the score of every gene
-	for(i=0;i<VF_SIZE;i++)
+	if(silent == 1)
 	{
-		printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
-		printf("Gene: %s\n",getGene(valueFunction,i));
+		FILE *fptr;
+		fptr = fopen("results.txt","w");
+		for(i=0;i<VF_SIZE;i++)
+		{
+			fprintf(fptr,"Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
+			fprintf(fptr,"Gene: %s\n",getGene(valueFunction,i));
+		}
+		fclose(fptr);
+	}
+	else
+	{
+		for(i=0;i<VF_SIZE;i++)
+		{
+			printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
+			printf("Gene: %s\n",getGene(valueFunction,i));
+		}	
 	}
 	destroyBattle(battle);
 	destroyValueFunction(valueFunction);
