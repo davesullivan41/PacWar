@@ -187,6 +187,7 @@ void getGoodGene(char * winner){
 	fscanf(fptr,"%s",h);
 
 	fclose(fptr);
+	// free(fptr);
 	// printf("File read and closed\n");
 	int digits[7];
 	// printf("Before random digit generation\n");
@@ -208,6 +209,7 @@ void getGoodGene(char * winner){
 	memset(f,0,sizeof(f));
 	memset(g,0,sizeof(g));
 	memset(h,0,sizeof(h));
+	
 
 	char winner1[50];
 	getWinner(winner1,battle1,digits[0]);
@@ -229,10 +231,10 @@ void getGoodGene(char * winner){
 	struct Battle *playoff1 = duel(winner1,winner2);
 	struct Battle *playoff2 = duel(winner3,winner4);
 
-	memset(winner1,0,sizeof(winner1));
-	memset(winner2,0,sizeof(winner2));
-	memset(winner3,0,sizeof(winner3));
-	memset(winner4,0,sizeof(winner4));
+	// memset(winner1,0,sizeof(winner1));
+	// memset(winner2,0,sizeof(winner2));
+	// memset(winner3,0,sizeof(winner3));
+	// memset(winner4,0,sizeof(winner4));
 
 
 	char finalist1[50];
@@ -246,8 +248,8 @@ void getGoodGene(char * winner){
 
 	struct Battle *finalBattle = duel(finalist1,finalist2);
 
-	memset(finalist1,0,sizeof(*finalist1));
-	memset(finalist2,0,sizeof(*finalist2));
+	// memset(finalist1,0,sizeof(*finalist1));
+	// memset(finalist2,0,sizeof(*finalist2));
 
 	getWinner(winner,finalBattle,digits[6]);
 	destroyBattle(finalBattle);
@@ -297,6 +299,7 @@ void getBetterGene(char *winner){
 	fscanf(fptr,"%s",seed->h);
 
 	fclose(fptr);
+	// free(fptr);
 
 	struct Battle *battle1 = duel(seed->a,contestants->a);
 	struct Battle *battle2 = duel(seed->b,contestants->b);
@@ -308,6 +311,7 @@ void getBetterGene(char *winner){
 	struct Battle *battle8 = duel(seed->h,contestants->h);
 
 	destroyContestants(contestants);
+	destroyContestants(seed);
 
 	struct Contestants *winners = createContestants();
 

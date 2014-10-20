@@ -118,6 +118,11 @@ struct ValueFunction *createValueFunction(){
 
 // free memory of value function
 void destroyValueFunction(struct ValueFunction *valueFunction){
+	int i;
+	for(i=0;i<VF_SIZE;i++)
+	{
+		free(valueFunction->geneScores[i]);
+	}
 	free(valueFunction);
 }
 
@@ -196,7 +201,6 @@ void insertionSort(struct GeneScore **geneScores,int length)
        }
        geneScores[j+1] = key;
    }
-   // destroyGeneScore(key);
 }
 
 // test genescore against the value function
@@ -208,8 +212,8 @@ void testGene(struct ValueFunction *valueFunction,struct GeneScore *geneScore){
 	{
 		battle = duel(geneScore->gene,getGene(valueFunction,i));
 		geneScore->score += battle->score;
+		destroyBattle(battle);
 	}
-	destroyBattle(battle);
 }
 
 void updateValueFunction(struct ValueFunction *valueFunction,struct GeneScore *geneScore){
@@ -225,11 +229,11 @@ void updateValueFunction(struct ValueFunction *valueFunction,struct GeneScore *g
 			battleA = duel(getGene(valueFunction,i),geneScore->gene);
 			battleB = duel(getGene(valueFunction,i),getGene(valueFunction,0));
 			getGeneScore(valueFunction,i)->score += (battleA->score - battleB->score);
+			destroyBattle(battleA);
+			destroyBattle(battleB);
 		}
 		memcpy(valueFunction->geneScores[0],geneScore,sizeof(struct GeneScore));
 		insertionSort(valueFunction->geneScores,VF_SIZE);
-		destroyBattle(battleA);
-		destroyBattle(battleB);
 	}
 }
 
@@ -249,6 +253,7 @@ int main(){
 			battle = duel(getGene(valueFunction,i),getGene(valueFunction,j));
 			getGeneScore(valueFunction,i)->score += battle->score;
 			getGeneScore(valueFunction,j)->score += (20 - battle->score);
+			destroyBattle(battle);
 		}
 	}
 	geneSort(valueFunction->geneScores,VF_SIZE);
@@ -261,14 +266,16 @@ int main(){
 	char *threes = "33333333333333333333333333333333333333333333333333";
 	battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
 	printf("Best gene score against threes: %d\n",battle->score);
-
+	destroyBattle(battle);
 	// test adding another gene
 	struct GeneScore *geneScore = createBetterGeneScore();
 	for(i=0;i<100;i++)
 	{
 		updateValueFunction(valueFunction,geneScore);
+		// destroyGeneScore(geneScore);
 		geneScore = createBetterGeneScore();
 	}
+	destroyGeneScore(geneScore);
 
 	battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
 	printf("Best gene score against threes: %d\n",battle->score);
@@ -276,6 +283,7 @@ int main(){
 	for(i=0;i<VF_SIZE;i++)
 	{
 		printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
+		printf("Gene: %s\n",getGene(valueFunction,i));
 	}
 	destroyBattle(battle);
 	destroyValueFunction(valueFunction);
