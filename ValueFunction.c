@@ -297,8 +297,10 @@ int main(){
 				for(i=0;i<VF_SIZE;i++)
 				{
 					fprintf(fptr,"%s #%d average score: %f\n",getGene(valueFunction,i),i,(float)getGeneScore(valueFunction,i)->score/VF_SIZE);
-				}
+				}	
+				battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
 				fprintf(fptr,"Best gene score against threes: %d\n",battle->score);
+				destroyBattle(battle);
 				fclose(fptr);
 			}
 			else
@@ -312,7 +314,6 @@ int main(){
 	destroyGeneScore(geneScore);
 
 	battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
-	printf("Best gene score against threes: %d\n",battle->score);
 	// print the score of every gene
 	if(silent == 1)
 	{
