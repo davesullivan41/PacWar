@@ -239,10 +239,24 @@ void updateValueFunction(struct ValueFunction *valueFunction,struct GeneScore *g
 }
 
 int main(){
+	int iterations;
+	int print;
+	int silent;
+	printf("Enter total number of iterations:\n");
+	scanf("%d",&iterations);
+	printf("Enter number of iterations to average score over: \n");
+	scanf("%d",&print);
+	printf("Enter 1 to run program in background and save results to results.txt: \n");
+	scanf("%d",&silent);
+	if(silent == 1)
+	{
+		daemon(1,0);
+	}
 
 	// creates a value function set with VF_SIZE random good genes
 	struct ValueFunction *valueFunction = createValueFunction();
-	printf("Genes built\n");
+	if(silent != 1)
+		printf("Genes built\n");
 	int i;
 	int j;
 	struct Battle *battle;
@@ -259,30 +273,17 @@ int main(){
 	}
 	geneSort(valueFunction->geneScores,VF_SIZE);
 	// print the score of every gene
-	for(i=0;i<VF_SIZE;i++)
-	{
-		printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
-	}
+	// for(i=0;i<VF_SIZE;i++)
+	// {
+	// 	printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
+	// }
 
 	char *threes = "33333333333333333333333333333333333333333333333333";
-	battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
-	printf("Best gene score against threes: %d\n",battle->score);
-	destroyBattle(battle);
+	// battle = duel(getGene(valueFunction,VF_SIZE-1),threes);
+	// printf("Best gene score against threes: %d\n",battle->score);
+	// destroyBattle(battle);
 	// test adding another gene
 	struct GeneScore *geneScore = createBetterGeneScore();
-	int iterations;
-	int print;
-	int silent;
-	printf("Enter total number of iterations:\n");
-	scanf("%d",&iterations);
-	printf("Enter number of iterations to average score over: \n");
-	scanf("%d",&print);
-	printf("Enter 1 to run program in background and save results to results.txt: \n");
-	scanf("%d",&silent);
-	if(silent == 1)
-	{
-		daemon(1,0);
-	}
 	float average = 0;
 	for(i=0;i<iterations;i++)
 	{
@@ -295,7 +296,7 @@ int main(){
 				fptr = fopen("results.txt","w");
 				for(i=0;i<VF_SIZE;i++)
 				{
-					fprintf(fptr,"%s #%d total score: %d\n",getGene(valueFunction,i),i,getGeneScore(valueFunction,i)->score);
+					fprintf(fptr,"%s #%d average score: %f\n",getGene(valueFunction,i),i,(float)getGeneScore(valueFunction,i)->score/VF_SIZE);
 				}
 				fprintf(fptr,"Best gene score against threes: %d\n",battle->score);
 				fclose(fptr);
@@ -319,7 +320,7 @@ int main(){
 		fptr = fopen("results.txt","w");
 		for(i=0;i<VF_SIZE;i++)
 		{
-			fprintf(fptr,"%s #%d total score: %d\n",getGene(valueFunction,i),i,getGeneScore(valueFunction,i)->score);
+			fprintf(fptr,"%s #%d average score: %f\n",getGene(valueFunction,i),i,(float)getGeneScore(valueFunction,i)->score/VF_SIZE);
 		}
 		fprintf(fptr,"Best gene score against threes: %d\n",battle->score);
 		fclose(fptr);
@@ -328,7 +329,7 @@ int main(){
 	{
 		for(i=0;i<VF_SIZE;i++)
 		{
-			printf("Gene %d total score: %d\n",i,getGeneScore(valueFunction,i)->score);
+			printf("Gene %d average score: %f\n",i,(float)getGeneScore(valueFunction,i)->score/VF_SIZE);
 			printf("Gene: %s\n",getGene(valueFunction,i));
 		}	
 	}
