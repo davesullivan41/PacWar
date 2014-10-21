@@ -27,6 +27,9 @@ struct GeneScore *createGoodGeneScore();
 // creates a pseudo-random "better" gene score
 struct GeneScore *createBetterGeneScore();
 
+// create an n-th level gene score
+struct GeneScore *createNthGeneScore(int N);
+
 // free memory of gene score
 void destroyGeneScore(struct GeneScore *geneScore);
 
@@ -95,6 +98,15 @@ struct GeneScore *createGoodGeneScore(){
 struct GeneScore *createBetterGeneScore(){
 	char *a = malloc(sizeof(char)*50);
 	getBetterGene(a);
+	struct GeneScore *geneScore = createGeneScore(a);
+	free(a);
+	return geneScore;
+}
+
+// create an n-th level gene score
+struct GeneScore *createNthGeneScore(int N){
+	char *a = malloc(sizeof(char)*50);
+	getNGene(N,a);
 	struct GeneScore *geneScore = createGeneScore(a);
 	free(a);
 	return geneScore;
@@ -288,7 +300,7 @@ int main(){
 	for(i=0;i<iterations;i++)
 	{
 		updateValueFunction(valueFunction,geneScore);
-		average += ((float)geneScore->score)/10;
+		average += ((float)geneScore->score)/(float)print;
 		if(i % print == 0 && i != 0){
 			if(silent == 1)
 			{
@@ -302,6 +314,8 @@ int main(){
 				fprintf(fptr,"Best gene score against threes: %d\n",battle->score);
 				destroyBattle(battle);
 				fclose(fptr);
+				average = (float)0;
+
 			}
 			else
 			{	
@@ -309,7 +323,8 @@ int main(){
 				average = (float)0;
 			}
 		}
-		geneScore = createBetterGeneScore();
+		// geneScore = createBetterGeneScore();
+		geneScore = createNthGeneScore(3);
 	}
 	destroyGeneScore(geneScore);
 

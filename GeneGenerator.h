@@ -69,6 +69,8 @@ void destroyContestants(struct Contestants *contestants);
 
 struct Contestants *contestantCopy(struct Contestants *contestants);
 
+char *ithContestant(struct Contestants *contestants,int i);
+
 struct Battle *createBattle();
 
 void destroyBattle(struct Battle *battle);
@@ -209,7 +211,7 @@ void getGoodGene(char * winner){
 	memset(f,0,sizeof(f));
 	memset(g,0,sizeof(g));
 	memset(h,0,sizeof(h));
-	
+
 
 	char winner1[50];
 	getWinner(winner1,battle1,digits[0]);
@@ -343,6 +345,59 @@ void getBetterGene(char *winner){
 	destroyContestants(winners);
 }
 
+// N is the "depth" of the tournament from 1-3. 8^N random genes will be created
+void getNGene(int N,char *winner){
+	if(N == 1)
+	{
+		getGoodGene(winner);
+	}
+	else if(N==2)
+	{	
+		struct Contestants *contestants = createContestants();
+
+		getGoodGene(contestants->a);
+		getGoodGene(contestants->b);
+		getGoodGene(contestants->c);
+		getGoodGene(contestants->d);
+		getGoodGene(contestants->e);
+		getGoodGene(contestants->f);
+		getGoodGene(contestants->g);
+		getGoodGene(contestants->h);
+
+		runManualTournament(contestants,winner);
+		destroyContestants(contestants);
+	}
+	else
+	{
+		struct Contestants *finalists = createContestants();
+		struct Contestants *contestants[8];
+		int i;
+		for(i=0;i<8;i++)
+		{
+			contestants[i] = createContestants();
+		}
+
+		for(i=0;i<8;i++)
+		{
+			getGoodGene(contestants[i]->a);
+			getGoodGene(contestants[i]->b);
+			getGoodGene(contestants[i]->c);
+			getGoodGene(contestants[i]->d);
+			getGoodGene(contestants[i]->e);
+			getGoodGene(contestants[i]->f);
+			getGoodGene(contestants[i]->g);
+			getGoodGene(contestants[i]->h);
+
+			runManualTournament(contestants[i],ithContestant(finalists,i));
+		}
+		runManualTournament(finalists,winner);
+		destroyContestants(finalists);
+		for(i=0;i<8;i++)
+		{
+			destroyContestants(contestants[i]);
+		}
+	}
+}
 ///////////////////////////////////////////////////////////////////////////
 // Helper functions
 ///////////////////////////////////////////////////////////////////////////
@@ -541,6 +596,41 @@ struct Contestants *contestantCopy(struct Contestants *contestants){
 	strcpy(toBeReturned->h,contestants->h);
 
 	return toBeReturned;
+}
+
+char *ithContestant(struct Contestants *contestants,int i){
+	if(i == 0)
+	{
+		return contestants->a;
+	}
+	if(i == 1)
+	{
+		return contestants->b;
+	}
+	if(i == 2)
+	{
+		return contestants->c;
+	}
+	if(i == 3)
+	{
+		return contestants->d;
+	}
+	if(i == 4)
+	{
+		return contestants->e;
+	}
+	if(i == 5)
+	{
+		return contestants->f;
+	}
+	if(i == 6)
+	{
+		return contestants->g;
+	}
+	else
+	{
+		return contestants->h;
+	}
 }
 
 struct Battle *createBattle(){
